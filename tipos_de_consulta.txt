@@ -1,0 +1,13 @@
+SELECT * FROM empregados;
+SELECT nome, cpf FROM empregados;
+SELECT * FROM empregados WHERE salario > 5000.00;
+SELECT * FROM empregados WHERE sexo = 'M' AND salario < 3000.00;
+SELECT * FROM empregados ORDER BY cpf DESC;
+SELECT * FROM empregados ORDER BY salario DESC LIMIT 5;
+SELECT COUNT(*) FROM empregados WHERE sexo = 'F';
+SELECT sexo, SUM(salario) FROM empregados GROUP BY name;
+SELECT sexo, AVG(idade) FROM empregados GROUP BY categoria HAVING AVG(salario) > 5000.00;
+INSERT INTO empregados VALUES ('Pedro Santos', '344.262.312-05', 413147, 'M', 13743.62, 27);
+UPDATE empregados SET salario = 6554.53 WHERE cpf = 500.993.034-00;
+DELETE FROM empregados WHERE cpf = 500.993.034-00;
+SELECT * FROM empregados WHERE nome LIKE 'Ana%';
