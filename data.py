@@ -20,3 +20,5 @@ class Data:
         self.data = np.genfromtxt(f"{self.table_name}.txt", dtype=self.data_type, delimiter=';', encoding='latin-1')
         return self.data
     
+    
+    
