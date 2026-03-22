@@ -21,7 +21,7 @@ class SQLSearch(SQLParser):
         if not query:
             raise ValueError('Query Vazia')
 
-        tokens = re.findall(r"'[^']*'|[a-zA-Z0-9À-ÿ.-]+|[>=<!]+", query.lower())
+        tokens = re.findall(r"'[^']'|[a-zA-Z0-9À-ÿ.-]+|[>=<!*]+", query.lower())
         tokens = [t.replace("'","") for t in tokens]
         
         result = self.parse_sql_query(tokens, query)
@@ -30,8 +30,8 @@ class SQLSearch(SQLParser):
             idx_from = tokens.index('from')
             columns_to_select = tokens[1:idx_from]
             if '*' in columns_to_select:
-                columns_to_select = list(self.data_type.name)
-
+                columns_to_select = self.column_names
+            
             if 'where' in tokens:
                 idx_where = tokens.index('where')
                 col_condition = tokens[idx_where + 1]
@@ -44,7 +44,7 @@ class SQLSearch(SQLParser):
                 mask = self.operators[operator](self.data[col_condition], typed_value)
                 return self.data[mask]
                 
-            if 'order' in tokens: # SELECT cpf,salario FROM empregados ORDER BY salario DESC LIMIT 5;
+            if 'order' in tokens: # SELECT cpf, salario FROM empregados ORDER BY salario DESC LIMIT 5;
                 init_idx = tokens.index('by')
                 col_to_order = tokens[init_idx + 1]
                 idx_order = np.argsort(self.data[col_to_order])

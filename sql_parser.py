@@ -23,9 +23,8 @@ class SQLParser(Data):
         try:
             if 'from' not in tokens:
                 raise SyntaxError(f"A consulta {query} é inválida! É necessário o comando FROM.")
-            
             from_index = tokens.index('from')
-            if from_index < 2:
+            if from_index < 1:
                 raise SyntaxError(f"A consulta {query} é inválida! É insuficiente ou mal formatada.")
 
             columns = tokens[1:from_index]
@@ -43,8 +42,8 @@ class SQLParser(Data):
                     col_name = col_lower.replace('count', '').replace('sum', '').replace('avg', '').strip('()')
                     if col_name != '*' and col_name != '' and col_name not in self.data_type.names:
                         raise ValueError(f"A coluna {col_name} na função de agregação não existe na tebela {table}.")
-
                     continue
+                
                 if col_lower not in self.data_type.names:
                     raise ValueError(f"A coluna {col} não existe na tabela {table}.")
             

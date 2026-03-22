@@ -13,11 +13,12 @@ class Data:
             ('idade', 'i4')
         ])
         
+        self.column_names = ['nome', 'cpf', 'matricula', 'sexo', 'salario', 'idade']
         self.table_name = 'empregados'
         self.data = None
 
     def load_data(self):
-        self.data = np.genfromtxt(f"{self.table_name}.txt", dtype=self.data_type, delimiter=';', encoding='latin-1')
+        self.data = np.genfromtxt(f"{self.table_name}.txt", dtype=self.data_type, delimiter=';', encoding='utf-8')
         return self.data
     
     
