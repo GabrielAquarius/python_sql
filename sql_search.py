@@ -16,8 +16,8 @@ class SQLSearch(SQLParser):
             '!=': lambda a, b: a != b
         }
     
-    def consult(self):
-        query = input('#').strip()
+    def consult(self, query):
+        # query = input('#').strip()
         if not query:
             raise ValueError('Query Vazia')
 
