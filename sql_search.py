@@ -19,7 +19,7 @@ class SQLSearch(SQLParser):
     def consult(self, query):
         # query = input('#').strip()
         if not query:
-            return ValueError('Query Vazia')
+            raise ValueError('Query Vazia')
 
         tokens = re.findall(r"'[^']'|[a-zA-Z0-9À-ÿ.-]+|[>=<!*]+", query.lower())
         tokens = [t.replace("'","") for t in tokens]
@@ -115,7 +115,7 @@ class SQLSearch(SQLParser):
             return self.data
             
         else:
-            print(result)
+            return result
 
 
 
