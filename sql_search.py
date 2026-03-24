@@ -210,7 +210,7 @@ class SQLSearch(SQLParser):
             return self.data
             
         else:
-            print(result)
+            return result
 
 
 

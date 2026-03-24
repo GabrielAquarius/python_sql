@@ -62,21 +62,21 @@ class Interface:
         self.clear_button.pack()
 
     def consulta_query(self):
-        sql_search = SQLSearch()
         query = self.query_entry.get("1.0", "end-1c") 
+        sql_search = SQLSearch()
         
         self.error_message.config(text='', fg='red')
-
-        if not query.strip():
-            self.error_message.config(text='Erro: A query não pode estar vazia.')
-            return
-
         try:
             r = sql_search.consult(query)
-            
-            if r and len(r) >= 2:
+            print(type(r))
+
+            if type(r) == str:
+                self.error_message.config(text=r)
+            elif r and len(r) >= 2:
                 tuples = r[0]
+                print(tuples)
                 columns = r[1]
+                print(columns)
                 self.atualizar_tabela(columns, tuples)
                 
                 self.error_message.config(text='Consulta executada com sucesso!', fg='green')
@@ -94,12 +94,15 @@ class Interface:
 
         self.tree['columns'] = columns
 
+        print(rows)
+
         for col in columns:
             self.tree.heading(col, text=col)
-            self.tree.column(col, width=100, anchor=W) 
+            self.tree.column(col, width=150, anchor=W, stretch=True)
 
         for row in rows:
             self.tree.insert("", END, values=row)
+            # print(row)
 
     def clear_text(self):
         for item in self.tree.get_children():
