@@ -19,7 +19,7 @@ class SQLSearch(SQLParser):
     def consult(self, query):
         # query = input('#').strip()
         if not query:
-            raise ValueError('Query Vazia')
+            return ValueError('Query Vazia')
 
         tokens = re.findall(r"'[^']'|[a-zA-Z0-9À-ÿ.-]+|[>=<!*]+", query.lower())
         tokens = [t.replace("'","") for t in tokens]
@@ -31,6 +31,7 @@ class SQLSearch(SQLParser):
             columns_to_select = tokens[1:idx_from]
             if '*' in columns_to_select:
                 columns_to_select = self.column_names
+                print(columns_to_select)
             
             if 'where' in tokens:
                 idx_where = tokens.index('where')
@@ -58,7 +59,7 @@ class SQLSearch(SQLParser):
                 else:
                     return self.data[idx_order][columns_to_select]
             
-            return self.data[columns_to_select]
+            return [self.data[columns_to_select], columns_to_select]
         
         elif result == 'insert':
             idx_value = tokens.index('values')
@@ -120,4 +121,5 @@ class SQLSearch(SQLParser):
 
 if __name__ == '__main__':
     search_for = SQLSearch()
-    print(search_for.consult())
+    query = input('').strip()
+    print(search_for.consult(query))
