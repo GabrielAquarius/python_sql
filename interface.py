@@ -6,6 +6,8 @@ from sql_search import SQLSearch
 class Interface:
     def __init__(self, toplevel):
         
+        self.sql_search = SQLSearch()
+
         self.main_frame = Frame(toplevel)
         self.main_frame.pack(fill=BOTH, expand=True, padx=20, pady=20)
 
@@ -25,7 +27,7 @@ class Interface:
         self.error_message = Label(self.query_frame, text='', fg='red', font=('Courier New', 12, 'bold'))
         self.error_message.pack()
 
-        self.query_entry = Text(self.query_frame, font=('Courier New', 14), width=60, height=4)
+        self.query_entry = Text(self.query_frame, font=('Courier New', 14), width=80, height=4)
         self.query_entry.pack(pady=5)
 
         self.query_button = Button(self.query_frame, text='RUN', command=self.consulta_query, width=15)
@@ -57,35 +59,67 @@ class Interface:
         self.x_scroll.config(command=self.tree.xview)
         self.y_scroll.config(command=self.tree.yview)
 
-        self.clear_button = Button(self.output_frame, text='CLEAR', width=15, height=2)
+        self.clear_button = Button(self.output_frame, text='CLEAR', width=15)
         self.clear_button['command'] = self.clear_text
         self.clear_button.pack()
 
     def consulta_query(self):
-        query = self.query_entry.get("1.0", "end-1c") 
-        sql_search = SQLSearch()
-        
+        query = self.query_entry.get("1.0", "end-1c").strip()
         self.error_message.config(text='', fg='red')
-        try:
-            r = sql_search.consult(query)
-            print(type(r))
 
-            if type(r) == str:
-                self.error_message.config(text=r)
-            elif r and len(r) >= 2:
-                tuples = r[0]
-                print(tuples)
-                columns = r[1]
-                print(columns)
-                self.atualizar_tabela(columns, tuples)
-                
+        if not query:
+            self.error_message.config(text='Query vazia!', fg='red')
+            self.clear_text()
+            return
+
+        try:
+            r = self.sql_search.consult(query)
+
+            # 1. ERRO (string)
+            if isinstance(r, str):
+                self.error_message.config(text=r, fg='red')
+                return
+
+            # 2. SELECT com GROUP BY (list of dicts)
+            if isinstance(r, list) and len(r) > 0 and isinstance(r[0], dict):
+                columns = list(r[0].keys())
+                rows = [tuple(d.values()) for d in r]
+
+                self.atualizar_tabela(columns, rows)
                 self.error_message.config(text='Consulta executada com sucesso!', fg='green')
-            else:
-                self.clear_text()
-                self.error_message.config(text='Comando executado. Nenhuma linha retornada.', fg='blue')
+                return
+
+            # 3. SELECT com agregação simples (dict)
+            if isinstance(r, dict):
+                columns = list(r.keys())
+                rows = [tuple(r.values())]
+
+                self.atualizar_tabela(columns, rows)
+                self.error_message.config(text='Consulta executada com sucesso!', fg='green')
+                return
+
+            # 4. numpy structured array (SELECT normal ou INSERT/UPDATE/DELETE)
+            if hasattr(r, 'dtype'):
+                columns = list(r.dtype.names)
+                rows = [tuple(row) for row in r]
+
+                if len(rows) == 0:
+                    self.clear_text()
+                    self.error_message.config(text='Comando executado. Nenhuma linha retornada.', fg='blue')
+                else:
+                    self.atualizar_tabela(columns, rows)
+                    self.error_message.config(text='Consulta executada com sucesso!', fg='green')
+                return
+
+            # fallback
+            self.clear_text()
+            self.error_message.config(
+                text=f'Query inválida ou não reconhecida: {query}',
+                fg='red'
+            )
 
         except Exception as e:
-            self.error_message.config(text=f'Erro SQL: {str(e)}')
+            self.error_message.config(text=f'Erro SQL: {str(e)}', fg='red')
             self.clear_text()
 
     def atualizar_tabela(self, columns, rows):
@@ -98,11 +132,10 @@ class Interface:
 
         for col in columns:
             self.tree.heading(col, text=col)
-            self.tree.column(col, width=150, anchor=W, stretch=True)
+            self.tree.column(col, width=50, anchor=W, stretch=True)
 
         for row in rows:
             self.tree.insert("", END, values=row)
-            # print(row)
 
     def clear_text(self):
         for item in self.tree.get_children():
